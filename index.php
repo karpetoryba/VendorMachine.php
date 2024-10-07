@@ -1,8 +1,9 @@
+//modelisation
 <?php
 class VendorMachine {
-    private $isOn;
-    private $snacksQty;
-    private $money;
+    private bool $isOn;
+    private int $snacksQty;
+    private int $money;
 
 
     public function __construct() {
@@ -37,13 +38,13 @@ public function reset(): void {
     return $this->snacksQty + (50 - $this->snacksQty);
 }
 
-  public function shootWithFoot(): void {
-    $this->isOn = false;
+public function shootWithFoot(): string {
+  $this->isOn = false;
 
-    $this->dropMoney();
-    $this->dropSnacks();
+  $this->dropMoney();
+  $this->dropSnacks();
 
-    echo "Snacks tombés : {$this->snacksQty} et monnaie tombée : {$this->money}";
+  return "Snacks tombés : {$this->snacksQty} et monnaie tombée : {$this->money}";
 }
 
 
@@ -66,4 +67,4 @@ private function dropSnacks() {
 }
 
 $machine = new VendorMachine();
-$machine->shootWithFoot();
+echo $machine->shootWithFoot();

@@ -60,15 +60,29 @@ class Order {
 		echo "Liste des produits : {$productsAsString}\n";
 	}
 
-
-    //Ajouter un produit au panier
-    public function addProduct (string $product): void {
-        array_push($this->products, $product);
-        echo "le produit {$product} est dans le panier.\n";
+    
+        //Ajouter un produit au panier
+    public function addProduct(string ...$products): void {
+        // Vérifiez si le nombre maximum de produits a été dépassé
+        if (count($this->products) + count($products) > 5) {
+            throw new Exception("max 5 produits par commande");
+        } 
+         //Ajouter des produits au panier
+        foreach ($products as $product) {
+         //Vérifier si un produit existe déjà dans le panier 
+        if (in_array($product, $this->products)) {
+            echo "Le produit {$product} est déjà dans le panier.\n";
+            continue; // ignore l'ajout s'il existe déjà dans le panier
+        }
+        
+        // Ajouter un produit s'il n'est pas déjà dans le panier
+            array_push($this->products, $product);
+            echo "Le produit {$product} est dans le panier.\n";
+        }
     }
-}  
-
-
+    
+    
+}
 //pour afficher le message de l'erreur
 try {
 	$order = new Order('Yoang frf', ['Casque', 'Téléphone', 'feuille']);
@@ -77,7 +91,8 @@ try {
     $order->removeProduct('Téléphone');  // Suppression du produit 'Téléphone'
 
   //Appel du method addProduct pour ajouter un produit
-    $order->addProduct('Apple');
+  $order->addProduct( 'Banane','Banane',);
+
     
 } catch(Exception $error) {
     echo $error->getMessage();

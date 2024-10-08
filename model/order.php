@@ -2,6 +2,18 @@
 
 class Order {
 
+    public static $CART_STATUS = "CART";
+	public static $SHIPPING_ADDRESS_SET_STATUS = "SHIPPING_ADDRESS_SET";
+	public static $SHIPPING_METHOD_SET_STATUS = "SHIPPING_METHOD_SET";
+	public static $PAID_STATUS = "PAID";
+	public static $MAX_PRODUCTS_BY_ORDER = 5;
+	public static $BLACKLISTED_CUSTOMERS = ['David Robert'];
+	public static $UNIQUE_PRODUCT_PRICE = 5;
+	public static $AUTORIZED_SHIPPING_COUNTRIES = ['France', 'Belgique', 'Luxembourg'];
+	public static $AVAILABLE_SHIPPING_METHODS = ['Chronopost Express', 'Point relais', 'Domicile'];
+	public static $PAID_SHIPPING_METHOD = 'Chronopost Express';
+
+
     private array $products;
     private string $customerName;
     private float $totalPrice;
@@ -16,23 +28,23 @@ class Order {
     private ?string $allowedCountries;
 
     public function __construct(string $customerName, array $products) {
-        if (count($products) > 5) {
-            throw new Exception("max 5 produits par commande");
+        if (count($products) > Order::$MAX_PRODUCTS_BY_ORDER) {
+            throw new Exception("max ". Order::$MAX_PRODUCTS_BY_ORDER .  "produits par commande");
         }
 
-        $this->status = "CART";
-        $this->createdAt = new DateTime();
-        $this->id = rand();
-        $this->shippingCountry = null;
-
-        $this->products = $products;
+        $this->status = Order::$CART_STATUS;
+		$this->createdAt = new DateTime();
+		$this->id = rand();
+		$this->products = $products;
+		$this->customerName = $customerName;
+		$this->totalPrice = count($products) * Order::$UNIQUE_PRODUCT_PRICE;
         
-        if ($customerName == 'David Robert') {
-            throw new Exception("tu es dans le blacklist");
-        }
+        if (in_array($customerName, Order::$BLACKLISTED_CUSTOMERS)) {
+			throw new Exception("Vous êtes blacklisté");
+		}
         
         $this->customerName = $customerName;
-        $this->totalPrice = count($products) * 5;
+        $this->totalPrice = count($products) * Order::$UNIQUE_PRODUCT_PRICE;
 
         echo "Commande {$this->id} créée pour {$this->customerName}, d'un montant de {$this->totalPrice} !\n";
     }
@@ -51,12 +63,12 @@ class Order {
 
     // Ajouter des produits au panier
     public function addProduct(string ...$products): void {
-        if ($this->status !== "CART") {
+        if ($this->status !== Order::$CART_STATUS) {
             throw new Exception("Vous ne pouvez pas ajouter de produits, la commande n'est pas en statut 'CART'.");
         }
 
-        if (count($this->products) + count($products) > 5) {
-            throw new Exception("max 5 produits par commande");
+        if (count($this->products) + count($products) >= Order::$MAX_PRODUCTS_BY_ORDER) {
+            throw new Exception("max" . Order::$MAX_PRODUCTS_BY_ORDER ."produits par commande");
         }
 
         foreach ($products as $product) {
@@ -93,12 +105,29 @@ class Order {
         }
 
         $this->shippingAddress = $shippingAddress;
-        $this->shippingCountry = $shippingCountry;
+		$this->shippingCountry = $shippingCountry;
+		$this->status = Order::$SHIPPING_ADDRESS_SET_STATUS;
 
         echo "La livraison vers {$this->shippingCountry} est possible à l'adresse {$this->shippingAddress}.\n";
     }
+//////////////////////////////////////////////
+    public function deliveryMethod (string $shippingAddressDetail): void {
+        $allowedCountries = ['chronopost', 'Express (+5e) ', 'point relais et domicile'];
+if ($this->status !== "Delivery") {
+        throw new Exception("La commande n'est pas prête pour la livraison.");
+    }
+
+    // Проверка, что выбранный метод доставки разрешён
+    if (!in_array($shippingMethod, $allowedMethods)) {
+        throw new Exception("Le méthode de livraison '{$shippingMethod}' n'est pas disponible.");
+    }
+
+    // Если метод доставки разрешён, сохраняем его
+    $this->shippingMethod = $shippingMethod;
+    echo "Le méthode de livraison '{$this->shippingMethod}' a été choisi.\n";
+    }
+    ///////////////////////////////////////////
 }
-  
 //pour afficher le message de l'erreur
 try {
     $order = new Order('Yoang frf', ['Casque', 'Téléphone', 'feuille']);
@@ -113,7 +142,7 @@ try {
     $order->completeOrder();  //delivery
 
     // Appel du method deliveryProducts
-    $order->deliveryProducts('123 Rue de Bordeaux', 'Russie');
+    $order->deliveryProducts('123 Rue de Bordeaux', 'France');
     
 } catch (Exception $error) {
     echo $error->getMessage();

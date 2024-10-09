@@ -14,7 +14,9 @@ if (isset($_SESSION['order'])) {
 
    
     $order->deliveryDestination($shippingCity, $shippingAddress, $shippingCountry);
-    
+    $_SESSION['order'] = $order; 
+
+
    
     header('Location: ../view/destination-delivery.php');
 } else {

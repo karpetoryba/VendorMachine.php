@@ -54,6 +54,7 @@ class Order {
     
 
 
+    
 
 	private function calculateTotalCart():  float {
 		return count($this->products) * Order::$UNIQUE_PRODUCT_PRICE;

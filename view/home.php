@@ -12,7 +12,7 @@
 <main>
     <form method="POST" action="../controller/create-order.php">
         <label for="customerName">Nom du client</label>
-        <input type="text" id="customerName" name="customerName" required>
+        <input type="text" id="customerName" name="customerName" minlength="2" maxlength="100" required>
         <br>
 
         <label for="product">Produit</label>

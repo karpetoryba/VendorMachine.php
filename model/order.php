@@ -21,6 +21,7 @@ class Order {
 	private float $totalPrice;
 
 	private int $id;
+
 	private DateTime $createdAt;
 
 	private string $status;
@@ -32,29 +33,38 @@ class Order {
 	private ?string $shippingAddress;
 
 	private ?string $shippingCountry;
-
-	public function __construct(string $customerName, array $products) {
-
-		if (count($products) > Order::$MAX_PRODUCTS_BY_ORDER) {
-			throw new Exception("Vous ne pouvez pas commander plus de " . Order::$MAX_PRODUCTS_BY_ORDER . " produits");
-		}
-
-		if (in_array($customerName, Order::$BLACKLISTED_CUSTOMERS)) {
-			throw new Exception("Vous êtes blacklisté");
-		}
-
-		$this->status = Order::$CART_STATUS;
-		$this->createdAt = new DateTime();
-		$this->id = rand();
-		$this->products = $products;
-		$this->customerName = $customerName;
-		$this->totalPrice = count($products) * Order::$UNIQUE_PRODUCT_PRICE;
-	}
-
     
 
-
+    public function __construct(string $customerName, array $products) {
+       
+        if (!$this->isValidInput($customerName)) {
+            throw new Exception("Le nom du client doit contenir au moins 2 caractères.");
+        }
     
+       
+        if (count($products) > Order::$MAX_PRODUCTS_BY_ORDER) {
+            throw new Exception("Vous ne pouvez pas commander plus de " . Order::$MAX_PRODUCTS_BY_ORDER . " produits");
+        }
+    
+    
+        if (in_array($customerName, Order::$BLACKLISTED_CUSTOMERS)) {
+            throw new Exception("Vous êtes blacklisté");
+        }
+    
+        $this->status = Order::$CART_STATUS;
+        $this->createdAt = new DateTime();
+        $this->id = rand();
+        $this->products = $products;
+        $this->customerName = $customerName;
+        $this->totalPrice = count($products) * Order::$UNIQUE_PRODUCT_PRICE;
+    }
+    ///////////////////fucntion pour ferifier le prenom
+    function isValidInput($input) {
+    
+        $pattern = '/^.{2,}$/';
+        return preg_match($pattern, $input);
+    }
+/////////////////////
 
 	private function calculateTotalCart():  float {
 		return count($this->products) * Order::$UNIQUE_PRODUCT_PRICE;
